@@ -46,7 +46,7 @@ body = {
     "purchaseTypeIds": [],
     "searchText": None,
     "size": 2,
-    "sort": [{"fieldName": "publishDate", "direction": 2}],
+    "sort": [{'fieldName': "applicationFillingEndDate", 'direction': 2}],
     "stateDefenseOrderOnly": False,
     "supplierNameOrInn": None,
     "types": []
