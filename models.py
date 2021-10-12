@@ -18,3 +18,7 @@ class Purchase(BaseModel):
     class Meta:
         primary_key = False
 
+
+class KeyWord(BaseModel):
+
+    word = CharField(unique=True)

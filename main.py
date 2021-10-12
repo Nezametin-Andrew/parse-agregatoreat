@@ -1,3 +1,4 @@
+from logging import Manager
 import re
 import json
 import requests
@@ -7,7 +8,7 @@ from config import (
     template_link, headers, body, url
 )
 from utils import log
-from models import Purchase, db
+from models import Purchase, KeyWord, db
 
 
 test = {
@@ -16,7 +17,7 @@ test = {
 }
 
 
-class Data:
+class DataManager:
     
     DB = db
     def __init__(self, model: object) -> None:
@@ -27,27 +28,33 @@ class Data:
              return [_id.id for _id in self.__model.select()]
         except Exception as e:
             self.DB.rollback()
+            return []
 
     def added_purchase(self, _id: str) -> None:
         try:
-            self.__model.create(id=_id)
+            self._model.create(id=_id)
         except Exception as e:
             self.DB.rollback()
 
-    def __getattribute__(self, name: str) -> Any:
-        ...
+    def __get_key_word(self) -> list:
+        try:
+            return [_w.word for _w in self.__model]
+        except Exception as e:
+            self.DB.rollback()
+            return []
 
-
-    def __setattr__(self, name: str, value: str):
-        ...
+    def getattr(self):
+        if isinstance(self.__model, Purchase): 
+            return self.__get_id_purchase()
 
 
 class SortData:
 
     def __init__(self) -> None:
-        self.__id_list = Data().get_id_purchase()
+        self.manager_data = DataManager(Purchase())
+        self.__id_list = self.manager_data.getattr()
 
-    def sort(self, _id: str) -> bool:
+    def sort_id(self, _id: str) -> bool:
         if _id in self.__id_list: return False
         return True
 
@@ -80,7 +87,7 @@ class Validator:
             log(e)
 
 
-class ExecuteRequest(Validator):
+class Request(Validator):
     
     def __init__(self) -> None:
         super().__init__()
@@ -108,15 +115,20 @@ class ParseData:
                     "deliveryInfos", 0, "deliveryAddress", "formattedFullInfo"
                     ],
                 ]
-        self.in_data = data
-        self.out_data = []
-        self.id_list_in_db = []
+        self.incoming_data = data
+        self.output_data = []
+        self.id_for_db = []
+        self.sort = SortData()
 
     def __id_useful(self, title: str) -> bool: 
-        pass
+        ...
 
     def parse_data(self) -> None:
         for item in self.in_data['items']:
-            pass
+            if self.__id_useful(item['subject']):
+                ...
+
+            if self.sort.sort_id(item['id']):
+                self.id_for_db.append(item['id'])
 
 
